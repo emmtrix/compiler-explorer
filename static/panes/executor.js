@@ -177,7 +177,7 @@ Executor.prototype.resize = function () {
 };
 
 function errorResult(message) {
-    return {code: -1, stdout: [], stderr: [{text: message}]};
+    return {code: -1, stderr: message};
 }
 
 Executor.prototype.compile = function (bypassCache) {

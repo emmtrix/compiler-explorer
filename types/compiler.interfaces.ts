@@ -23,7 +23,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 // Minimal Compiler properties until a better one can be sync'ed with the backend
-import {Tool, ToolInfo} from '../lib/tooling/base-tool.interface';
+import {ToolInfo} from '../lib/tooling/base-tool.interface';
 
 import {Library} from './libraries/libraries.interfaces';
 
@@ -46,7 +46,6 @@ export type CompilerInfo = {
     instructionSet: string;
     needsMulti: boolean;
     adarts: string;
-    supportsDeviceAsmView: boolean;
     supportsDemangle: boolean;
     supportsBinary: boolean;
     supportsIntel: boolean;
@@ -68,11 +67,11 @@ export type CompilerInfo = {
     ldPath: string[];
     // [env, setting][]
     envVars: [string, string][];
-    notification: string;
+    notification: string[];
     isSemVer: boolean;
     semver: string;
     libsArr: Library['id'][];
-    tools: Record<ToolInfo['id'], Tool>;
+    tools: Record<ToolInfo['id'], ToolInfo>;
     unwiseOptions: string[];
     hidden: boolean;
     buildenvsetup: {

@@ -70,8 +70,7 @@ export class MultifileService {
 
         this.isCMakeProject = state.isCMakeProject || false;
         this.compilerLanguageId = state.compilerLanguageId || '';
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        this.files = state.files || [];
+        this.files = state.files;
         this.newFileId = state.newFileId || 1;
 
         this.validExtraFilenameExtensions = ['.txt', '.md', '.rst', '.sh', '.cmake', '.in'];
@@ -115,10 +114,7 @@ export class MultifileService {
         });
 
         if (possibleLang.length > 0) {
-            const sorted = _.sortBy(possibleLang, a => {
-                return a.extensions.indexOf(filenameExt);
-            });
-            return sorted[0].id;
+            return possibleLang[0].id;
         }
 
         if (this.isCMakeFile(filename)) {
@@ -241,14 +237,14 @@ export class MultifileService {
 
         if (file.isOpen) {
             const editor = this.hub.getEditorById(file.editorId);
-            return editor?.getSource() ?? '';
+            return editor.getSource();
         } else {
             return file.content;
         }
     }
 
     public isEditorPartOfProject(editorId: number) {
-        const found = this.files.find((file: MultifileFile) => {
+        const found = _.find(this.files, (file: MultifileFile) => {
             return file.isIncluded && file.isOpen && editorId === file.editorId;
         });
 
@@ -256,7 +252,7 @@ export class MultifileService {
     }
 
     public getFileByFileId(fileId: number): MultifileFile | undefined {
-        const file = this.files.find((file: MultifileFile) => {
+        const file = _.find(this.files, (file: MultifileFile) => {
             return file.fileId === fileId;
         });
 
@@ -281,17 +277,17 @@ export class MultifileService {
     }
 
     private filterOutNonsense() {
-        this.files = this.files.filter((file: MultifileFile) => MultifileService.isValidFile(file));
+        this.files = _.filter(this.files, (file: MultifileFile) => MultifileService.isValidFile(file));
     }
 
     public getFiles(): Array<FiledataPair> {
         this.filterOutNonsense();
 
-        const filtered = this.files.filter((file: MultifileFile) => {
+        const filtered = _.filter(this.files, (file: MultifileFile) => {
             return !file.isMainSource && file.isIncluded;
         });
 
-        return filtered.map((file: MultifileFile) => {
+        return _.map(filtered, (file: MultifileFile) => {
             return {
                 filename: file.filename,
                 contents: this.getFileContents(file),
@@ -326,7 +322,7 @@ export class MultifileService {
     }
 
     public getMainSource(): string {
-        const mainFile = this.files.find((file: MultifileFile) => {
+        const mainFile = _.find(this.files, (file: MultifileFile) => {
             return file.isIncluded && this.isMainSourceFile(file);
         });
 
@@ -338,27 +334,21 @@ export class MultifileService {
     }
 
     public getFileByEditorId(editorId: number): MultifileFile | undefined {
-        return this.files.find((file: MultifileFile) => {
+        return _.find(this.files, (file: MultifileFile) => {
             return file.editorId === editorId;
         });
     }
 
     public getEditorIdByFilename(filename: string): number | null {
-        const file = this.files.find((file: MultifileFile) => {
+        const file = _.find(this.files, (file: MultifileFile) => {
             return file.isIncluded && file.filename === filename;
         });
 
         return file && file.editorId > 0 ? file.editorId : null;
     }
 
-    private getFileByFilename(filename: string): MultifileFile | undefined {
-        return this.files.find((file: MultifileFile) => {
-            return file.filename === filename;
-        });
-    }
-
     public getMainSourceEditorId(): number | null {
-        const file = this.files.find((file: MultifileFile) => {
+        const file = _.find(this.files, (file: MultifileFile) => {
             return file.isIncluded && this.isMainSourceFile(file);
         });
 
@@ -391,14 +381,6 @@ export class MultifileService {
         const file = this.getFileByFileId(fileId);
         if (file) {
             this.files = this.files.filter((obj: MultifileFile) => obj.fileId !== fileId);
-        }
-        return file;
-    }
-
-    public removeFileByFilename(filename: string): MultifileFile | undefined {
-        const file = this.getFileByFilename(filename);
-        if (file) {
-            this.files = this.files.filter((obj: MultifileFile) => obj.fileId !== file.fileId);
         }
         return file;
     }
@@ -488,27 +470,10 @@ export class MultifileService {
         return suggestedFilename;
     }
 
-    public fileExists(filename: string, excludeFile?: MultifileFile): boolean {
-        return this.files.some((file: MultifileFile) => {
-            if (excludeFile && file === excludeFile) return false;
-
-            return file.filename === filename;
+    private fileExists(filename: string, excludeFile: MultifileFile): boolean {
+        return !!_.find(this.files, (file: MultifileFile) => {
+            return file !== excludeFile && file.filename === filename;
         });
-    }
-
-    public addNewTextFile(filename: string, content: string) {
-        const file: MultifileFile = {
-            fileId: this.newFileId,
-            isIncluded: false,
-            isOpen: false,
-            isMainSource: false,
-            filename: filename,
-            content: content,
-            editorId: -1,
-            langId: this.getLanguageIdFromFilename(filename),
-        };
-
-        this.addFile(file);
     }
 
     public async renameFile(fileId: number): Promise<boolean> {

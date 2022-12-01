@@ -38,8 +38,8 @@ export class DosboxCompiler extends BaseCompiler {
     constructor(compilerInfo, env) {
         super(compilerInfo, env);
 
-        this.dosbox = this.compilerProps<string>(`compiler.${this.compiler.id}.dosbox`);
-        this.root = this.compilerProps<string>(`compiler.${this.compiler.id}.root`);
+        this.dosbox = this.compilerProps(`compiler.${this.compiler.id}.dosbox`);
+        this.root = this.compilerProps(`compiler.${this.compiler.id}.root`);
         this.asm = new TurboCAsmParser(this.compilerProps);
     }
 
@@ -64,6 +64,8 @@ export class DosboxCompiler extends BaseCompiler {
         await fs.writeFile(inputFilename, source.replaceAll(/\n/g, '\r\n'));
 
         if (files && files.length > 0) {
+            (filters as any).dontMaskFilenames = true;
+
             await this.writeMultipleFiles(files, dirPath);
         }
 

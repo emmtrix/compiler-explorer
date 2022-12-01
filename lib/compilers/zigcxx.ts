@@ -24,7 +24,7 @@
 
 import Semver from 'semver';
 
-import {CompilerOutputOptions, ParseFiltersAndOutputOptions} from '../../types/features/filters.interfaces';
+import {CompilerFilters, ParseFilters} from '../../types/features/filters.interfaces';
 import {asSafeVer} from '../utils';
 
 import {ClangCompiler} from './clang';
@@ -43,7 +43,7 @@ export class ZigCXX extends ClangCompiler {
             Semver.lt(asSafeVer(this.compiler.semver), '0.9.0', true);
     }
 
-    override preProcess(source: string, filters: CompilerOutputOptions): string {
+    override preProcess(source: string, filters: CompilerFilters): string {
         if (this.needsForcedBinary) {
             // note: zig versions > 0.6 don't emit asm, only binary works - https://github.com/ziglang/zig/issues/8153
             filters.binary = true;
@@ -52,11 +52,7 @@ export class ZigCXX extends ClangCompiler {
         return super.preProcess(source, filters);
     }
 
-    override optionsForFilter(
-        filters: ParseFiltersAndOutputOptions,
-        outputFilename: string,
-        userOptions?: string[],
-    ): string[] {
+    override optionsForFilter(filters: ParseFilters, outputFilename: string, userOptions?: string[]): string[] {
         if (this.needsForcedBinary) {
             // note: zig versions > 0.6 don't emit asm, only binary works - https://github.com/ziglang/zig/issues/8153
             filters.binary = true;

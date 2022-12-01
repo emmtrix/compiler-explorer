@@ -624,10 +624,6 @@ div.populararguments div.dropdown-menu {
     overflow: auto; /* move scrollbar into sponsor part - keep quickaccess buttons on screen */
 }
 
-#ces-banner-text {
-    margin-right: 0.1em;
-}
-
 @media (max-width: 1000px) {
     .ces-content-root {
         font-size: 60%;
@@ -718,7 +714,7 @@ div.populararguments div.dropdown-menu {
 }
 
 .ces-icon {
-    padding: 0 0.2em 0 0.2em;
+    margin-left: 0.3em;
     height: 1.5em;
 }
 
@@ -866,13 +862,6 @@ html[data-theme='dark'] {
     float: right;
     padding: 4px 10px 4px 0;
 }
-.tree .drophere {
-    margin: 5px;
-    border: dashed rgba(127, 127, 127, 0.2);
-    border-radius: 16px;
-    height: 150px;
-}
-
 .mainbar .cmake-project {
     margin-top: 2px;
 }

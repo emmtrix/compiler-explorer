@@ -25,7 +25,7 @@
 import path from 'path';
 
 import {ExecutionOptions} from '../../types/compilation/compilation.interfaces';
-import {ParseFiltersAndOutputOptions} from '../../types/features/filters.interfaces';
+import {ParseFilters} from '../../types/features/filters.interfaces';
 import {BaseCompiler} from '../base-compiler';
 
 export class JaktCompiler extends BaseCompiler {
@@ -43,20 +43,13 @@ export class JaktCompiler extends BaseCompiler {
         return 'cppp';
     }
 
-    override async objdump(
-        outputFilename,
-        result: any,
-        maxSize: number,
-        intelAsm,
-        demangle,
-        filters: ParseFiltersAndOutputOptions,
-    ) {
+    override async objdump(outputFilename, result: any, maxSize: number, intelAsm, demangle, filters: ParseFilters) {
         const objdumpResult = await super.objdump(outputFilename, result, maxSize, intelAsm, demangle, filters);
         objdumpResult.languageId = 'asm';
         return objdumpResult;
     }
 
-    override optionsForFilter(filters: ParseFiltersAndOutputOptions, outputFilename: any) {
+    override optionsForFilter(filters: ParseFilters, outputFilename: any) {
         return ['--binary-dir', path.dirname(outputFilename)];
     }
 

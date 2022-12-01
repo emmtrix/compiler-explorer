@@ -25,29 +25,21 @@
 import {BuildEnvDownloadInfo} from '../../lib/buildenvsetup/buildenv.interfaces';
 import {IAsmParser} from '../../lib/parsers/asm-parser.interfaces';
 import {CompilerInfo} from '../compiler.interfaces';
-import {BasicExecutionResult} from '../execution/execution.interfaces';
+import {LanguageKey} from '../languages.interfaces';
 import {ResultLine} from '../resultline/resultline.interfaces';
-
-import {LLVMOptPipelineOutput} from './llvm-opt-pipeline-output.interfaces';
 
 export type CompilationResult = {
     code: number;
     timedOut: boolean;
-    buildResult?: BuildResult;
-    buildsteps?: BuildStep[];
+    buildResult?: unknown;
     inputFilename?: string;
     asm?: ResultLine[];
-    devices?: Record<string, CompilationResult>;
     stdout: ResultLine[];
     stderr: ResultLine[];
     didExecute?: boolean;
     execResult?: {
         stdout?: ResultLine[];
         stderr?: ResultLine[];
-        code: number;
-        didExecute: boolean;
-        buildResult?: BuildResult;
-        execTime?: number;
     };
     hasGnatDebugOutput?: boolean;
     gnatDebugOutput?: ResultLine[];
@@ -64,7 +56,6 @@ export type CompilationResult = {
     ppOutput?: any;
 
     hasOptOutput?: boolean;
-    optOutput?: any;
     optPath?: string;
 
     hasAstOutput?: boolean;
@@ -74,7 +65,7 @@ export type CompilationResult = {
     irOutput?: any;
 
     hasLLVMOptPipelineOutput?: boolean;
-    llvmOptPipelineOutput?: LLVMOptPipelineOutput | string;
+    llvmOptPipelineOutput?: any;
 
     hasRustMirOutput?: boolean;
     rustMirOutput?: any;
@@ -95,21 +86,8 @@ export type CompilationResult = {
     haskellCmmOutput?: any;
 
     forceBinaryView?: boolean;
-
     bbcdiskimage?: string;
-    speccytape?: string;
-    miraclesms?: string;
-    jsnesrom?: string;
-
     hints?: string[];
-
-    retreivedFromCache?: boolean;
-    retreivedFromCacheTime?: number;
-    packageDownloadAndUnzipTime?: number;
-    execTime?: number | string;
-    processExecutionResultTime?: number;
-    objdumpTime?: number;
-    parsingTime?: number;
 };
 
 export type ExecutionOptions = {
@@ -126,15 +104,27 @@ export type ExecutionOptions = {
     killChild?: () => void;
 };
 
-export type BuildResult = CompilationResult & {
+export type BuildResult = {
     downloads: BuildEnvDownloadInfo[];
     executableFilename: string;
-    compilationOptions: string[];
+    compilationOptions: any[];
 };
 
-export type BuildStep = BasicExecutionResult & {
-    compilationOptions: string[];
-    step: string;
+export type Artifact = {
+    content: string;
+    type: string;
+    name: string;
+    title: string;
+};
+
+export type ToolResult = {
+    id: string;
+    name?: string;
+    code: number;
+    languageId?: LanguageKey | 'stderr';
+    stderr: ResultLine[];
+    stdout: ResultLine[];
+    artifact?: Artifact;
 };
 
 export type CompilationInfo = {

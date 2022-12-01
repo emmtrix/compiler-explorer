@@ -310,16 +310,13 @@ export class Ast extends MonacoPane<monaco.editor.IStandaloneCodeEditor, AstStat
                 },
             }));
             this.decorations.linkedCode = [...linkedLineDecorations, ...directlyLinkedLineDecorations];
-
-            if (!this.settings.indefiniteLineHighlight) {
-                if (this.linkedFadeTimeoutId) {
-                    clearTimeout(this.linkedFadeTimeoutId);
-                }
-                this.linkedFadeTimeoutId = setTimeout(() => {
-                    this.clearLinkedLines();
-                    this.linkedFadeTimeoutId = undefined;
-                }, 5000);
+            if (this.linkedFadeTimeoutId) {
+                clearTimeout(this.linkedFadeTimeoutId);
             }
+            this.linkedFadeTimeoutId = setTimeout(() => {
+                this.clearLinkedLines();
+                this.linkedFadeTimeoutId = undefined;
+            }, 5000);
             this.updateDecorations();
         }
     }

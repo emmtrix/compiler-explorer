@@ -40,7 +40,7 @@ import * as monacoConfig from '../monaco-config';
 import {GccDumpFilters, GccDumpState} from './gccdump-view.interfaces';
 
 import {ga} from '../analytics';
-import {CompilerOutputOptions} from '../../types/features/filters.interfaces';
+import {CompilerFilters} from '../../types/features/filters.interfaces';
 
 export class GccDump extends MonacoPane<monaco.editor.IStandaloneCodeEditor, GccDumpState> {
     selectize: TomSelect;
@@ -114,7 +114,7 @@ export class GccDump extends MonacoPane<monaco.editor.IStandaloneCodeEditor, Gcc
         this.eventHub.emit(
             'gccDumpFiltersChanged',
             this.compilerInfo.compilerId,
-            this.getEffectiveFilters() as CompilerOutputOptions,
+            this.getEffectiveFilters() as CompilerFilters,
             false
         );
 
@@ -397,7 +397,7 @@ export class GccDump extends MonacoPane<monaco.editor.IStandaloneCodeEditor, Gcc
             this.eventHub.emit(
                 'gccDumpFiltersChanged',
                 this.compilerInfo.compilerId,
-                this.getEffectiveFilters() as unknown as CompilerOutputOptions,
+                this.getEffectiveFilters() as unknown as CompilerFilters,
                 true
             );
         }

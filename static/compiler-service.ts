@@ -36,14 +36,18 @@ import jqXHR = JQuery.jqXHR;
 import ErrorTextStatus = JQuery.Ajax.ErrorTextStatus;
 import {CompilerInfo} from '../types/compiler.interfaces';
 import {CompilationResult} from '../types/compilation/compilation.interfaces';
-import {CompilationStatus} from './compiler-service.interfaces';
+
+type CompilationStatus = {
+    code: 0 | 1 | 2 | 3 | 4;
+    compilerOut: number;
+};
 
 const ASCII_COLORS_RE = new RegExp(/\x1B\[[\d;]*m(.\[K)?/g);
 
 export class CompilerService {
     private readonly base = window.httpRoot;
     private allowStoreCodeDebug: boolean;
-    cache: LRU;
+    private cache: LRU;
     private readonly compilersByLang: Record<string, Record<string, CompilerInfo>>;
 
     constructor(eventHub: EventEmitter) {
@@ -144,7 +148,7 @@ export class CompilerService {
             .value();
     }
 
-    getCompilersForLang(langId: string): Record<string, CompilerInfo> {
+    private getCompilersForLang(langId: string): Record<string, CompilerInfo> {
         return langId in this.compilersByLang ? this.compilersByLang[langId] : {};
     }
 

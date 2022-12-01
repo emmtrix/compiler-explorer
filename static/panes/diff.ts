@@ -156,9 +156,9 @@ export class Diff extends MonacoPane<monaco.editor.IStandaloneDiffEditor, DiffSt
                     {id: DiffType.ExecStdErr, name: 'Execution stderr'},
                     {id: DiffType.GNAT_ExpandedCode, name: 'GNAT Expanded Code'},
                     {id: DiffType.GNAT_Tree, name: 'GNAT Tree Code'},
-                ] as any[],
+                ],
                 items: [],
-                render: <any>{
+                render: {
                     option: (item, escape) => {
                         return `<div>${escape(item.name)}</div>`;
                     },
@@ -195,7 +195,7 @@ export class Diff extends MonacoPane<monaco.editor.IStandaloneDiffEditor, DiffSt
                 searchField: ['name'],
                 options: [],
                 items: [],
-                render: <any>{
+                render: {
                     option: function (item, escape) {
                         const origin = item.editorId !== false ? 'Editor #' + item.editorId : 'Tree #' + item.treeId;
                         return (
@@ -260,8 +260,7 @@ export class Diff extends MonacoPane<monaco.editor.IStandaloneDiffEditor, DiffSt
 
     override createEditor(editorRoot: HTMLElement) {
         return monaco.editor.createDiffEditor(editorRoot, {
-            fontFamily: this.settings.editorsFFont,
-            fontLigatures: this.settings.editorsFLigatures,
+            fontFamily: 'Consolas, "Liberation Mono", Courier, monospace',
             scrollBeyondLastLine: true,
             readOnly: true,
         });
@@ -273,7 +272,7 @@ export class Diff extends MonacoPane<monaco.editor.IStandaloneDiffEditor, DiffSt
         this.updateState();
     }
 
-    override onCompileResult(id: number | string, compiler: CompilerInfo, result: CompilationResult) {
+    onCompileResult(id: number | string, compiler: CompilerInfo, result: CompilationResult) {
         // both sides must be updated, don't be tempted to rewrite this as
         // var changes = lhs.update() || rhs.update();
         const lhsChanged = this.lhs.update(id, compiler, result);
@@ -323,7 +322,9 @@ export class Diff extends MonacoPane<monaco.editor.IStandaloneDiffEditor, DiffSt
         if (!compiler) return;
         options = options || '';
         let name = compiler.name + ' ' + options;
-        // TODO: tomselect doesn't play nicely with CSS tricks for truncation; this is the best I can do
+        // TODO: selectize doesn't play nicely with CSS tricks for truncation; this is the best I can do
+        // There's a plugin at: http://www.benbybenjacobs.com/blog/2014/04/09/no-wrap-plugin-for-selectize-dot-js
+        // but it doesn't look easy to integrate.
         const maxLength = 30;
         if (name.length > maxLength - 3) name = name.substr(0, maxLength - 3) + '...';
         this.compilers[id] = {

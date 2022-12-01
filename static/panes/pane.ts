@@ -29,7 +29,7 @@ import * as monaco from 'monaco-editor';
 import {MonacoPaneState, PaneCompilerState, PaneState} from './pane.interfaces';
 
 import {FontScale} from '../widgets/fontscale';
-import {Settings, SiteSettings} from '../settings';
+import {SiteSettings} from '../settings';
 import * as utils from '../utils';
 
 import {PaneRenaming} from '../widgets/pane-renaming';
@@ -47,10 +47,9 @@ export abstract class Pane<S> {
     domRoot: JQuery;
     topBar: JQuery;
     hideable: JQuery;
-    protected hub: Hub;
     eventHub: EventHub;
     isAwaitingInitialResults = false;
-    settings: SiteSettings;
+    settings: SiteSettings | Record<string, never> = {};
     paneName: string | undefined = undefined;
     paneRenaming: PaneRenaming;
 
@@ -62,7 +61,6 @@ export abstract class Pane<S> {
      */
     protected constructor(hub: Hub, container: Container, state: S & PaneState) {
         this.container = container;
-        this.hub = hub;
         this.eventHub = hub.createEventHub();
         this.domRoot = container.getElement();
         this.domRoot.html(this.getInitialHTML());
@@ -78,10 +76,6 @@ export abstract class Pane<S> {
         this.topBar = this.domRoot.find('.top-bar');
 
         this.paneRenaming = new PaneRenaming(this, state);
-
-        this.initializeDefaults();
-        this.initializeGlobalDependentProperties();
-        this.initializeStateDependentProperties(state);
 
         this.registerDynamicElements(state);
 
@@ -116,14 +110,6 @@ export abstract class Pane<S> {
      * ```
      */
     abstract registerOpeningAnalyticsEvent(): void;
-
-    initializeDefaults(): void {}
-
-    initializeGlobalDependentProperties(): void {
-        this.settings = Settings.getStoredSettings();
-    }
-
-    initializeStateDependentProperties(state: S): void {}
 
     /** Optional overridable code for initializing necessary elements before rest of registers **/
     registerDynamicElements(state: S): void {}

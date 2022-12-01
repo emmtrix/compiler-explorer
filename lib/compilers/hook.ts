@@ -25,7 +25,7 @@
 import path from 'path';
 
 import {CompilationResult, ExecutionOptions} from '../../types/compilation/compilation.interfaces';
-import {ParseFiltersAndOutputOptions} from '../../types/features/filters.interfaces';
+import {ParseFilters} from '../../types/features/filters.interfaces';
 import {BaseCompiler} from '../base-compiler';
 
 export class HookCompiler extends BaseCompiler {
@@ -33,7 +33,7 @@ export class HookCompiler extends BaseCompiler {
         return 'hook';
     }
 
-    override optionsForFilter(filters: ParseFiltersAndOutputOptions): string[] {
+    override optionsForFilter(filters: ParseFilters): string[] {
         return ['--dump'];
     }
 

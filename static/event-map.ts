@@ -23,7 +23,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 import {Language} from '../types/languages.interfaces';
-import {CompilerOutputOptions} from '../types/features/filters.interfaces';
+import {CompilerFilters} from '../types/features/filters.interfaces';
 import {MessageWithLocation} from '../types/resultline/resultline.interfaces';
 import {SiteSettings} from './settings';
 import {Theme} from './themes';
@@ -52,12 +52,7 @@ export type EventMap = {
         treeId: number
     ) => void;
     compilerClose: (compilerId: number, treeId: boolean | number) => void;
-    compileResult: (
-        compilerId: number,
-        compiler: CompilerInfo,
-        result: CompilationResult,
-        language: Language | undefined
-    ) => void;
+    compileResult: (compilerId: number, compiler: CompilerInfo, result: CompilationResult, language: Language) => void;
     compilerFavoriteChange: (compilerId: number) => void;
     compilerFlagsChange: (compilerId: number, options: string) => void;
     compilerOpen: (compilerId: number, editorId: number, treeId: number | boolean) => void;
@@ -86,13 +81,13 @@ export type EventMap = {
     ) => void;
     executorClose: (executorId: number) => void;
     executorOpen: (executorId: number, editorId: boolean | number) => void;
-    filtersChange: (compilerId: number, filters: CompilerOutputOptions) => void;
+    filtersChange: (compilerId: number, filters: CompilerFilters) => void;
     findCompilers: () => void;
     findEditors: () => void;
     findExecutors: () => void;
     flagsViewClosed: (compilerId: number, options: string) => void;
     flagsViewOpened: (compilerId: number) => void;
-    gccDumpFiltersChanged: (compilerId: number, filters: CompilerOutputOptions, recompile: boolean) => void;
+    gccDumpFiltersChanged: (compilerId: number, filters: CompilerFilters, recompile: boolean) => void;
     gccDumpPassSelected: (compilerId: number, pass: GccSelectedPass, recompile: boolean) => void;
     gccDumpUIInit: (compilerId: number) => void;
     gccDumpViewClosed: (compilerId: number) => void;
@@ -127,8 +122,7 @@ export type EventMap = {
         colBegin: number,
         colEnd: number,
         reveal: boolean,
-        sender: string,
-        editorId?: number
+        sender: string
     ) => void;
     ppViewClosed: (compilerId: number) => void;
     ppViewOpened: (compilerId: number) => void;

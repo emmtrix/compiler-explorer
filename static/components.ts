@@ -22,7 +22,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-import {ParseFiltersAndOutputOptions} from '../types/features/filters.interfaces';
+import {CompilerFilters} from '../types/features/filters.interfaces';
 import {
     EmptyCompilerState,
     ComponentConfig,
@@ -126,7 +126,7 @@ export function getCompiler(editorId: number, lang: string): ComponentConfig<Emp
  */
 export function getCompilerWith(
     editorId: number,
-    filters: ParseFiltersAndOutputOptions,
+    filters: CompilerFilters,
     options: unknown,
     compilerId: string,
     langId?: string,
@@ -222,11 +222,7 @@ export function getEditor(id?: number, langId?: string): ComponentConfig<EmptyEd
 }
 
 /** Get an editor component with the given configuration. */
-export function getEditorWith(
-    id: number,
-    source: string,
-    options: ParseFiltersAndOutputOptions
-): ComponentConfig<PopulatedEditorState> {
+export function getEditorWith(id: number, source: string, options): ComponentConfig<PopulatedEditorState> {
     return {
         type: 'component',
         componentName: EDITOR_COMPONENT_NAME,
@@ -883,7 +879,7 @@ export function getDeviceView(): ComponentConfig<EmptyDeviceViewState> {
 export function getDeviceViewWith(
     id: number,
     source: string,
-    devices: unknown,
+    deviceOutput: unknown,
     compilerName: string,
     editorid: number,
     treeid: number
@@ -894,7 +890,7 @@ export function getDeviceViewWith(
         componentState: {
             id: id,
             source: source,
-            devices: devices,
+            deviceOutput: deviceOutput,
             compilerName: compilerName,
             editorid: editorid,
             treeid: treeid,

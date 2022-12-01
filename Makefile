@@ -3,28 +3,32 @@ default: run
 help: # with thanks to Ben Rady
 	@grep -E '^[0-9a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
+current_dir = $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
 # If you see "node-not-found" then you need to depend on node-installed.
-NODE:=node-not-found
-NPM:=npm-not-found
-NODE_MODULES:=./node_modules/.npm-updated
+#NODE:=node-not-found
+#NPM:=npm-not-found
+NODE:=node
+NPM:=npm
+NODE_MODULES:=$(current_dir)node_modules/.npm-updated
 
 # These 'find' scripts cache their results in a dotfile.
 # Doing it this way instead of NODE:=$(shell etc/script/find-node) means
 # if they fail, they stop the make process. As best I can tell there's no
 # way to get make to fail if a sub-shell command fails.
-.node-bin: etc/scripts/find-node
-	@etc/scripts/find-node .node-bin
+.node-bin: $(current_dir)etc/scripts/find-node
+	@$(current_dir)etc/scripts/find-node $(current_dir).node-bin
 
 # All targets that need node must depend on this to ensure the NODE variable
 # is appropriately set, and that PATH is updated.
-.PHONY: node-installed
-node-installed: .node-bin
-	@$(eval NODE:=$(shell cat .node-bin))
-	@$(eval NPM:=$(shell dirname $(shell cat .node-bin))/npm)
+.PHONY: $(current_dir)node-installed
+node-installed: $(current_dir).node-bin
+	@$(eval NODE:=$(shell cat $(current_dir).node-bin))
+	@$(eval NPM:=$(shell dirname $(shell cat $(current_dir).node-bin))/npm)
 	@$(eval PATH=$(shell dirname $(realpath $(NODE))):$(PATH))
 
 .PHONY: info
-info: node-installed ## print out some useful variables
+info: $(current_dir)node-installed ## print out some useful variables
 	@echo Using node from $(NODE)
 	@echo Using npm from $(NPM)
 	@echo PATH is $(PATH)
@@ -32,10 +36,14 @@ info: node-installed ## print out some useful variables
 .PHONY: prereqs
 prereqs: $(NODE_MODULES)
 
-$(NODE_MODULES): package.json | node-installed
+$(NODE_MODULES): $(current_dir)package.json | $(current_dir)node-installed
 	$(NPM) install $(NPM_FLAGS)
-	@rm -rf node_modules/.cache/esm/*
+	@rm -rf $(current_dir)node_modules/.cache/esm/*
 	@touch $@
+
+.PHONY: typescript
+typescript: 
+	npm install -g @types/node
 
 .PHONY: lint
 lint: $(NODE_MODULES)  ## Checks if the source currently matches code conventions
@@ -74,15 +82,11 @@ clean:  ## Cleans up everything
 run: prereqs  ## Runs the site like it runs in production
 	$(NPM) run webpack
 	$(NPM) run ts-compile
-	env NODE_ENV=production $(NODE) $(NODE_ARGS) -r esm ./out/dist/app.js --webpackContent ./out/webpack/static $(EXTRA_ARGS)
+	env NODE_ENV=production $(NODE) $(NODE_ARGS) -r esm $(current_dir)out/dist/app.js --webpackContent $(current_dir)out/webpack/static $(EXTRA_ARGS)
 
 .PHONY: dev
 dev: prereqs ## Runs the site as a developer; including live reload support and installation of git hooks
 	./node_modules/.bin/supervisor -w app.js,lib,etc/config,static/tsconfig.json -e 'js|ts|node|properties|yaml' -n exit --exec $(NODE) $(NODE_ARGS) -- -r esm -r ts-node/register ./app.js $(EXTRA_ARGS)
-
-.PHONY: gpu-dev
-gpu-dev: prereqs ## Runs the site as a developer; including live reload support and installation of git hooks
-	./node_modules/.bin/supervisor -w app.js,lib,etc/config,static/tsconfig.json -e 'js|ts|node|properties|yaml' -n exit --exec $(NODE) $(NODE_ARGS) -- -r esm -r ts-node/register ./app.js --env gpu $(EXTRA_ARGS)
 
 .PHONY: debug
 debug: prereqs ## Runs the site as a developer with full debugging; including live reload support and installation of git hooks

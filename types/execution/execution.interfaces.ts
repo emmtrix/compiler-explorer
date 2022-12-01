@@ -26,7 +26,6 @@ export type BasicExecutionResult = {
     stdout: ResultLine[];
     stderr: ResultLine[];
     execTime: string;
-    processExecutionResultTime?: number;
     timedOut: boolean;
 };
 

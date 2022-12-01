@@ -257,13 +257,13 @@ export class LoadSave {
         }
     }
 
-    setMinimalOptions(editorText: string, currentLanguage: Language) {
+    private setMinimalOptions(editorText: string, currentLanguage: Language) {
         this.editorText = editorText;
         this.currentLanguage = currentLanguage;
         this.extension = currentLanguage.extensions[0] || '.txt';
     }
 
-    onSaveToFile(fileEditor?: string) {
+    private onSaveToFile(fileEditor?: string) {
         try {
             const fileLang = this.currentLanguage?.name ?? '';
             const name = fileLang && fileEditor !== undefined ? fileLang + ' Editor #' + fileEditor + ' ' : '';

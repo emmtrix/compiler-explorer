@@ -27,15 +27,14 @@ import * as Sentry from '@sentry/browser';
 import GoldenLayout from 'golden-layout';
 import _ from 'underscore';
 import ClipboardJS from 'clipboard';
-import {set as localStorageSet} from './local';
-import {ga} from './analytics';
-import * as url from './url';
-import {options} from './options';
 
 import ClickEvent = JQuery.ClickEvent;
 import TriggeredEvent = JQuery.TriggeredEvent;
 import {Settings, SiteSettings} from './settings';
 
+const ga = require('./analytics').ga;
+const options = require('./options').options;
+const url = require('./url');
 const cloneDeep = require('lodash.clonedeep');
 
 enum LinkType {
@@ -122,7 +121,6 @@ export class Sharing {
         });
 
         $(window).on('blur', async () => {
-            localStorageSet('gl', JSON.stringify(this.layout.toConfig()));
             if (this.settings.keepMultipleTabs) {
                 try {
                     const link = await this.getLinkOfType(LinkType.Full);
@@ -391,7 +389,7 @@ export class Sharing {
 
     private static getEmbeddedHtml(config, root, isReadOnly, extraOptions): string {
         const embedUrl = Sharing.getEmbeddedUrl(config, root, isReadOnly, extraOptions);
-        return `<iframe width='800px' height='200px' src='${embedUrl}'></iframe>`;
+        return `<iframe width="800px" height="200px" src="${embedUrl}"></iframe>`;
     }
 
     private static getEmbeddedUrl(config: any, root: string, readOnly: boolean, extraOptions: object): string {

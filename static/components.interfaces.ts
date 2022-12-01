@@ -22,8 +22,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-import {CompilerOutputOptions} from '../types/features/filters.interfaces';
+import {CompilerFilters} from '../types/features/filters.interfaces';
 import {LLVMOptPipelineViewState} from './panes/llvm-opt-pipeline.interfaces';
+
 export const COMPILER_COMPONENT_NAME = 'compiler';
 export const EXECUTOR_COMPONENT_NAME = 'executor';
 export const EDITOR_COMPONENT_NAME = 'codeEditor';
@@ -66,7 +67,7 @@ type EmptyState = Record<never, never>;
 
 export type EmptyCompilerState = StateWithLanguage & StateWithEditor;
 export type PopulatedCompilerState = StateWithEditor & {
-    filters: CompilerOutputOptions;
+    filters: CompilerFilters;
     options: unknown;
     compiler: string;
     libs?: unknown;
@@ -280,7 +281,7 @@ export type PopulatedRustHirViewState = StateWithId & {
 export type EmptyDeviceViewState = EmptyState;
 export type PopulatedDeviceViewState = StateWithId & {
     source: string;
-    devices: unknown;
+    deviceOutput: unknown;
     compilerName: string;
     editorid: number;
     treeid: number;

@@ -1,5 +1,2 @@
-docs/*  linguist-documentation
-*.s linguist-generated
-*.asm linguist-generated
-lib/asm-docs/generated/asm-docs-*.js linguist-generated
-test/*-cases/* linguist-generated
+# Auto detect text files and perform LF normalization
+* text=auto

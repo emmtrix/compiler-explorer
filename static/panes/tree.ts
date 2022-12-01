@@ -130,7 +130,7 @@ export class Tree {
             valueField: 'id',
             labelField: 'name',
             searchField: ['name'],
-            options: usableLanguages as any[],
+            options: usableLanguages,
             items: [this.multifileService.getLanguageId()],
             dropdownParent: 'body',
             plugins: ['input_autogrow'],
@@ -291,8 +291,8 @@ export class Tree {
         if (file) {
             file.isOpen = false;
             const editor = this.hub.getEditorById(editorId);
-            file.langId = editor?.currentLanguage?.id ?? '';
-            file.content = editor?.getSource() ?? '';
+            file.langId = editor.currentLanguage.id;
+            file.content = editor.getSource();
             file.editorId = -1;
         }
 
@@ -301,20 +301,6 @@ export class Tree {
 
     private removeFile(fileId: number) {
         const file = this.multifileService.removeFileByFileId(fileId);
-        if (file) {
-            if (file.isOpen) {
-                const editor = this.hub.getEditorById(file.editorId);
-                if (editor) {
-                    editor.container.close();
-                }
-            }
-        }
-
-        this.refresh();
-    }
-
-    private removeFileByFilename(filename: string) {
-        const file = this.multifileService.removeFileByFilename(filename);
         if (file) {
             if (file.isOpen) {
                 const editor = this.hub.getEditorById(file.editorId);
@@ -394,7 +380,7 @@ export class Tree {
         (file.isIncluded ? this.namedItems : this.unnamedItems).append(item);
     }
 
-    refresh() {
+    private refresh() {
         this.updateState();
 
         this.namedItems.html('');
@@ -413,7 +399,7 @@ export class Tree {
                 this.hub.addInEditorStackIfPossible(dragConfig);
             } else {
                 const editor = this.hub.getEditorById(file.editorId);
-                this.hub.activateTabForContainer(editor?.container);
+                this.hub.activateTabForContainer(editor.container);
             }
 
             this.sendChangesToAllEditors();
@@ -502,10 +488,18 @@ export class Tree {
         loadProjectFromFile.on('change', async e => {
             const files = e.target.files;
             if (files && files.length > 0) {
-                await this.openZipFile(files[0]);
-            }
+                this.multifileService.forEachFile((file: MultifileFile) => {
+                    this.removeFile(file.fileId);
+                });
 
-            loadProjectFromFile.val('');
+                await this.multifileService.loadProjectFromFile(files[0], (file: MultifileFile) => {
+                    this.refresh();
+                    if (file.filename === 'CMakeLists.txt') {
+                        // todo: find a way to toggle on CMake checkbox...
+                        this.editFile(file.fileId);
+                    }
+                });
+            }
         });
 
         this.bindClickToOpenPane(addCompilerButton, this.getConfigForNewCompiler);
@@ -524,109 +518,6 @@ export class Tree {
             this.domRoot.find('.options'),
             state as unknown as Record<string, boolean>
         );
-
-        let drophereHideTimeout;
-        this.root.on('dragover', ev => {
-            ev.preventDefault();
-
-            if (drophereHideTimeout) clearTimeout(drophereHideTimeout);
-
-            const drophere = this.root.find('.drophere');
-            drophere.show();
-        });
-
-        this.root.on('dragleave', () => {
-            const drophere = this.root.find('.drophere');
-            drophereHideTimeout = setTimeout(() => {
-                drophere.hide();
-            }, 1000);
-        });
-
-        this.root.on('drop', async (ev: any) => {
-            ev.preventDefault();
-
-            const drophere = this.root.find('.drophere');
-            drophere.hide();
-
-            const dataTransfer = ev.originalEvent.dataTransfer;
-            if (dataTransfer.items) {
-                [...dataTransfer.items].forEach(async (item, i) => {
-                    if (item.kind === 'file') {
-                        const file = item.getAsFile();
-                        if (file.name.endsWith('.zip')) {
-                            this.openZipFile(file);
-                        } else {
-                            await this.addSingleFile(file);
-                        }
-                    }
-                });
-            } else {
-                [...dataTransfer.files].forEach(async (file, i) => {
-                    if (file.name.endsWith('.zip')) {
-                        this.openZipFile(file);
-                    } else {
-                        await this.addSingleFile(file);
-                    }
-                });
-            }
-        });
-    }
-
-    private async openZipFile(htmlfile) {
-        this.multifileService.forEachFile((file: MultifileFile) => {
-            this.removeFile(file.fileId);
-        });
-
-        await this.multifileService.loadProjectFromFile(htmlfile, (file: MultifileFile) => {
-            this.refresh();
-            if (file.filename === 'CMakeLists.txt') {
-                // todo: find a way to toggle on CMake checkbox...
-                this.editFile(file.fileId);
-            }
-        });
-    }
-
-    private async askForOverwriteAndDo(filename): Promise<void> {
-        return new Promise((resolve, reject) => {
-            if (this.multifileService.fileExists(filename)) {
-                this.alertSystem.ask('Overwrite file', `${_.escape(filename)} already exists, overwrite this file?`, {
-                    yes: () => {
-                        this.removeFileByFilename(filename);
-                        resolve();
-                    },
-                    no: () => {
-                        reject();
-                    },
-                    onClose: () => {
-                        reject();
-                    },
-                    yesClass: 'btn-danger',
-                    yesHtml: 'Yes',
-                    noClass: 'btn-primary',
-                    noHtml: 'No',
-                });
-            } else {
-                resolve();
-            }
-        });
-    }
-
-    private async addSingleFile(htmlfile): Promise<void> {
-        try {
-            await this.askForOverwriteAndDo(htmlfile.name);
-
-            return new Promise(resolve => {
-                const fr = new FileReader();
-                fr.onload = () => {
-                    this.multifileService.addNewTextFile(htmlfile.name, fr.result?.toString() || '');
-                    this.refresh();
-                    resolve();
-                };
-                fr.readAsText(htmlfile);
-            });
-        } catch {
-            // expected when user says no
-        }
     }
 
     private numberUsedLines() {
